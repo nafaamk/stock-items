@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="stock management, inventory app, save items, track stock, stock items, inventory tracker, item manager">
+    <meta name="description" content="Stock Items App - Easily manage and track your stock inventory. Add, search, and save your items hassle-free.">
+    <title>Stock Items App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #title {
+            margin: 20px 0;
+            color: #333;
+        }
+        input {
+            padding: 10px;
+            width: 250px;
+            margin: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+        }
+        #addItemButton, #saveButton {
+            background-color: #007bff;
+            color: white;
+        }
+        #searchButton {
+            background-color: #007bff;
+            color: white;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            width: 80%;
+            max-width: 600px;
+        }
+        li {
+            padding: 15px;
+            margin: 10px 0;
+            background-color: #e0f7fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 4px;
+        }
+        .deleteButton {
+            background-color: red;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="title">Stock Items App</h1>
+
+    <input type="text" id="searchInput" placeholder="Search items...">
+    <button id="searchButton">Search</button>
+
+    <input type="text" id="itemInput" placeholder="Item name">
+    <input type="number" id="priceInput" placeholder="Item price">
+    <button id="addItemButton">Add Item</button>
+    <button id="saveButton">Save Items</button>
+
+    <ul id="itemList"></ul>
+
+    <script>
+        const itemList = document.getElementById('itemList');
+        const searchInput = document.getElementById('searchInput');
+
+        // Load saved items from localStorage on page load
+        window.onload = function() {
+            const savedItems = JSON.parse(localStorage.getItem('stockItems')) || [];
+            savedItems.forEach(item => addItemToList(item.name, item.price));
+        };
+
+        // Add new item to list
+        document.getElementById('addItemButton').addEventListener('click', function() {
+            const name = document.getElementById('itemInput').value.trim();
+            const price = document.getElementById('priceInput').value.trim();
+            if (name && price) {
+                addItemToList(name, price);
+                document.getElementById('itemInput').value = '';
+                document.getElementById('priceInput').value = '';
+            }
+        });
+
+        // Save items to localStorage
+        document.getElementById('saveButton').addEventListener('click', function() {
+            saveItems();
+            alert('Items saved successfully!');
+        });
+
+        // Add item to the UI list
+        function addItemToList(name, price) {
+            const li = document.createElement('li');
+            li.innerHTML = `${name} - $${price} <button class="deleteButton">Delete</button>`;
+            itemList.appendChild(li);
+
+            li.querySelector('.deleteButton').addEventListener('click', function() {
+                li.remove();
+                saveItems();
+            });
+        }
+
+        // Save all current items to localStorage
+        function saveItems() {
+            const items = [];
+            itemList.querySelectorAll('li').forEach(li => {
+                const text = li.textContent.replace('Delete', '').trim();
+                const [name, pricePart] = text.split(' - $');
+                items.push({ name, price: pricePart });
+            });
+            localStorage.setItem('stockItems', JSON.stringify(items));
+        }
+
+        // Search filter (live search)
+        document.getElementById('searchButton').addEventListener('click', function() {
+            const searchValue = searchInput.value.toLowerCase().trim();
+            const items = itemList.querySelectorAll('li');
+            items.forEach(li => {
+                const text = li.textContent.toLowerCase();
+                li.style.display = text.includes(searchValue) ? 'flex' : 'none';
+            });
+        });
+    </script>
+</body>
+</html>
